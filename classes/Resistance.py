@@ -1,5 +1,5 @@
 import numpy as np
-from Rho import *
+from classes.Rho import Rho
 from abc import ABC, abstractmethod
 
 class Resistance(ABC):
@@ -10,11 +10,11 @@ class Resistance(ABC):
 
 class Resistance_via_LS(Resistance):
 
-    def __init__(self, Rho: Rho, Temperature_celsius: float, Length: float, Section: float):
-        self._Rho = Rho
-        self._Temperature_celsius = Temperature_celsius # (°C) Temperature
+    def __init__(self, Rho: Rho, Length: float, Section: float):
+        self._Rho = Rho # Conductivity
         self._Length = Length
         self._Section = Section
 
+    @property
     def get_value(self):
-        return self._Rho.get_value(T_kelvin=self._Temperature_celsius) * self._Length / self._Section
+        return self._Rho.get_value * self._Length / self._Section
