@@ -12,6 +12,10 @@ class Winding:
         self._n_turns = n_turns
 
     @property
+    def get_n_turns(self):
+        return self._n_turns
+
+    @property
     def get_n_slot_per_pole_per_phase(self): # Get the number of slot per pole per phase
         return self._n_slot / (2 * self._n_pole * self._n_phase)
 
@@ -29,14 +33,14 @@ class Winding:
 
     @property
     def get_pole_pitch(self): # Get the pole pitch
-        return np.pi/self._n_pole
+        return 2*np.pi/self._n_pole
 
     @property
     def get_coil_span_angle(self): # Get coil span angle
         return (1 - self._narrowing / (self.get_n_slot_per_pole_per_phase * self._n_phase))*self.get_pole_pitch
 
     @property
-    def get_single_turn_length(self):
+    def get_single_turn_length(self): # Get length of one turn
         return 2*(self._lz_machine + self._bore_radius*self.get_coil_span_angle)
 
     @property
@@ -46,3 +50,8 @@ class Winding:
     @property
     def get_all_coil_length(self):
         return self.get_coil_length * self._n_pole
+
+    @property
+    def get_winding_distribution_factor(self):
+        return (self._n_pole * self._n_phase / self._n_slot) * (np.sin(np.pi/4/self._n_phase)/np.sin(np.pi/4*self._n_pole/self._n_slot))
+

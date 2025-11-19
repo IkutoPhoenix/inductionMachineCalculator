@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 
 class Rho(ABC):
 
-    def __init__(self, T_celsius):
-        self._T_kelvin = T_celsius + 273.15
+    def __init__(self, t_celsius):
+        self._T_kelvin = t_celsius + 273.15
         self._alpha = None
         self._rho0 = None
         self._T0 = None
@@ -14,8 +14,8 @@ class Rho(ABC):
 
 class Rho_Cu(Rho): #Conductivity of copper
 
-    def __init__(self, T_celsius):
-        super().__init__(T_celsius)
+    def __init__(self, t_celsius):
+        super().__init__(t_celsius)
         self._alpha = 4.04e-3 # (K-1) Temperature coefficient
         self._rho0 = 1/59.6e6 #(S/m) Conductivity at T0
         self._T0 = 20 + 273.15 #(K) Temperature of rho0

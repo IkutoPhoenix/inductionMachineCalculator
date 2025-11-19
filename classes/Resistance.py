@@ -4,9 +4,19 @@ from abc import ABC, abstractmethod
 
 class Resistance(ABC):
 
+    @property
     @abstractmethod
     def get_value(self):
         pass
+
+class Resistance_from_value(Resistance):
+
+    def __init__(self, value: float):
+        self._value = value
+
+    @property
+    def get_value(self):
+        return self._value
 
 class Resistance_via_LS(Resistance):
 
