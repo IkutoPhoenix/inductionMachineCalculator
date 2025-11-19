@@ -64,6 +64,17 @@ class StatorApp(tk.Tk):
                 ("Voltage input (V)", self.var_voltage_input),
                 ("Frequency (Hz)", self.var_frequency),
                 ("N of rotor turns", self.var_n_rotor_turns),
+            ],[
+                ("===== GLOBAL =====", None),
+                ("Machine length (m)", self.var_lz_machine),
+                ("Nb of phase", self.var_n_phase),
+                ("Nb of pole", self.var_n_pole),
+                ("Narrowing (0/1)", self.var_narrowing),
+                ("Bore radius (m)", self.var_bore_radius),
+                ("Temperature (°C)", self.var_temperature_celsius),
+                ("Voltage input (V)", self.var_voltage_input),
+                ("Frequency (Hz)", self.var_frequency),
+                ("N of rotor turns", self.var_n_rotor_turns),
             ]
         ]
 

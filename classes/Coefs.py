@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
+from Winding import *
 
 class Coef(ABC):
 
@@ -50,3 +51,13 @@ class WindingFactor(Coef):
     @property
     def get_value(self):
         return self._filtering_factor.get_value * self._short_pitch_factor.get_value * self._distribution_factor.get_value
+
+class CarterCoefficient(Coef):
+    def __init__(self, stator_slot_width: float, stator_winding: Winding, air_gap_length: float):
+        self._stator_slot_width = stator_slot_width
+        self._stator_winding = stator_winding
+        self._air_gap_length = air_gap_length
+
+    @property
+    def get_value(self):
+        return self._stator_winding.get_tooth_pitch/(self._stator_winding.get_tooth_pitch - self._stator_slot_width**2/(5*self._air_gap_length + self._stator_slot_width))

@@ -12,8 +12,16 @@ class Winding:
         self._n_turns = n_turns
 
     @property
+    def get_bore_radius(self):
+        return self._bore_radius
+
+    @property
     def get_n_turns(self):
         return self._n_turns
+
+    @property
+    def get_n_slot(self):
+        return self._n_slot
 
     @property
     def get_n_slot_per_pole_per_phase(self): # Get the number of slot per pole per phase
