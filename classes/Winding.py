@@ -12,6 +12,10 @@ class Winding:
         self._n_turns = n_turns
 
     @property
+    def get_n_pole(self):
+        return self._n_pole
+
+    @property
     def get_bore_radius(self):
         return self._bore_radius
 
@@ -61,5 +65,10 @@ class Winding:
 
     @property
     def get_winding_distribution_factor(self):
-        return (self._n_pole * self._n_phase / self._n_slot) * (np.sin(np.pi/4/self._n_phase)/np.sin(np.pi/4*self._n_pole/self._n_slot))
+        q = self._n_slot/(self._n_pole * self._n_phase)
+        return np.sin(q*np.pi/self._n_turns)/(q*np.sin(np.pi/self._n_turns))
+        #return (self._n_pole * self._n_phase / self._n_slot) * (np.sin(np.pi/4/self._n_phase)/np.sin(np.pi/4*self._n_pole/self._n_slot))
+
+
+
 

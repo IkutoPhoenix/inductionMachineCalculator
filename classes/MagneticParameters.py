@@ -1,5 +1,9 @@
 from classes.BOfH import *
 
+"""
+Class for magnetic parameters to easily switch between B and H
+"""
+
 class MagneticParameters(ABC):
 
     @property

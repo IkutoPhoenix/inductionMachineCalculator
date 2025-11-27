@@ -1,3 +1,7 @@
+"""
+Specific coefficient related to the number of pole
+"""
+
 class COne:
 
     def __init__(self, n_pole: int):

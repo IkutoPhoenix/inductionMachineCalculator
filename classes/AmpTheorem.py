@@ -8,4 +8,5 @@ class AmpTheorem:
 
     @property
     def get_enclosed_current(self):
+        """ Return the Ampere's law I = H*L, I is a scalar"""
         return np.matmul(self._magnetic_field_strength, self._magnetic_circuit_length)

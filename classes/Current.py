@@ -3,6 +3,9 @@ from AmpTheorem import *
 from classes.Coefs import *
 from classes.MagneticParameters import *
 
+"""
+Class for the currents
+"""
 
 class Current(ABC):
 

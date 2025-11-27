@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from classes.Winding import *
 from classes.Wire import *
-from classes.CorrectionFactor import *
 from classes.Resistance import *
 from classes.COne import *
 from classes.Coefs import *
@@ -33,12 +32,15 @@ class WoundRotor(Rotor):
         self._stator_winding = stator_winding
         self._rotor_power = rotor_power
         self._winding_factor = WindingFactor(self._stator_winding.get_n_slot_per_pole_per_phase, 1, self._stator_winding.get_n_turns)
-        #  n_pole: int, n_phase: int, n_slot: int, narrowing: float, lz_machine: float, bore_radius: float, n_turns: float
         self._rotor_winding = Winding(self._n_pole, self._n_phase, self._n_rotor_slot, 0, self._lz_machine, self._rotor_radius, self._n_rotor_turns)
 
     @property
     def n_rotor_conductors(self):
         return self._n_rotor_conductors
+
+    @property
+    def get_rotor_winding(self):
+        return self._rotor_winding
 
     #@property
     #def get_n_series_conductors_per_phase(self):
@@ -53,24 +55,10 @@ class WoundRotor(Rotor):
         return self.get_single_rotor_turn_length*self._n_rotor_turns
 
     @property
-    def get_single_bar_resistance(self):
+    def get_rotor_resistance(self):
         return Resistance_via_LS(self._rotor_wire.get_rho, self._rotor_winding.get_all_coil_length, self._rotor_wire.get_section)
 
-    #@property
-    #def get_correction_factor(self):
-    #    return CorrectionFactor(self._n_pole, 0, self._rotor_radius)
-
-    @property
-    def get_rotor_resistance(self):
-        return self.get_single_bar_resistance
-        #return Resistance_from_value(2/self._n_pole * (self.get_single_bar_resistance.get_value*self.get_correction_factor.get_value/(2*np.sin(np.pi*self._n_pole/(2*self._n_bar))**2)))
-
-    #@property
-    #def get_rotor_flux_per_pole(self):
-    #    return COne(self._n_pole).get_value * np.sqrt(self._rotor_power * 60 / self._frequency * 1e-3)
 
     @property
     def get_rotor_resistance_ref_stator(self):
-        #return Resistance_from_value(12 * self._stator_winding.get_n_turns**2 * self._winding_factor.get_value**2 / self._n_rotor_slot * self.get_rotor_resistance.get_value)
         return Resistance_from_value((self._stator_winding.get_n_turns / self._rotor_winding.get_n_turns)** 2 * self.get_rotor_resistance.get_value)
-        #return Resistance_from_value(((self._stator_winding.get_winding_distribution_factor * self._stator_step_factor * self.get_n_series_conductors_per_phase) / (self._rotor_winding_distribution_factor * self._rotor_step_factor * self._n_rotor_turns))**2*self.get_rotor_resistance.get_value)

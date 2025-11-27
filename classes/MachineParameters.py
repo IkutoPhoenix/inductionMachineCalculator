@@ -1,5 +1,8 @@
 from scipy.special import erf_zeros
 
+"""
+WIP : Class that contains all parameters of the machine to reduce the amount of arguments in others class
+"""
 
 class Machine:
 
