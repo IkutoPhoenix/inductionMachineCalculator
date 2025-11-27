@@ -108,26 +108,34 @@ class StatorApp(tk.Tk):
         length = max([len(sub_array) for sub_array in labelsGrid])
         width = len(labelsGrid)*2
 
+        # Horizontal line to separate inputs of outputs
         ttk.Separator(main, orient="horizontal").grid(
             row=length, column=0, columnspan=width, sticky="ew", pady=12
         )
 
+        # Label for license and jokes
+        ttk.Label(main, text="Made in 🐊 Nancy, France with 💜 - License GNU GPL v3").grid(row=length+2, column=0, columnspan=width, sticky="w", pady=4)
+
+        # Control buttons
         ttk.Button(main, text="Calculate", command=self.calculate).grid(
-            row=length + 1, column=1, columnspan=2, pady=12
+            row=length + 1, column=0, columnspan=2, pady=12
         )
         ttk.Button(main, text="Torque Curve", command=lambda: self.calculate(option=2)).grid(
-            row=length + 1, column=3, columnspan=2, pady=12
+            row=length + 1, column=2, columnspan=2, pady=12
+        )
+        ttk.Button(main, text="Flux density ", command=lambda: self.calculate(option=3)).grid(
+            row=length + 1, column=4, columnspan=2, pady=12
         )
 
         ttk.Label(main, text=text).grid(row=idx, column=0 + ydx * 2, sticky="w", pady=4)
 
-        self.result = tk.Text(main, height=19, width=60, wrap="word")
-        self.result.grid(row=length + 2, column=0, columnspan=width//2, pady=4)
-        self.BTable = tk.Text(main, height=19, width=78, wrap="word")
-        self.BTable.grid(row=length + 2, column=width//2, columnspan=width//2, pady=4)
+        self.result = tk.Text(main, height=16, width=60, wrap="word")
+        self.result.grid(row=length + 3, column=0, columnspan=width//2, pady=4)
+        self.BTable = tk.Text(main, height=16, width=78, wrap="word")
+        self.BTable.grid(row=length + 3, column=width//2, columnspan=width//2, pady=4)
 
     def calculate(self, option=1):
-        #try:
+        #Get all the values in textboxes
         lz_machine = self.var_lz_machine.get()
         n_phase = self.var_n_phase.get()
         n_pole = self.var_n_pole.get()
@@ -169,10 +177,13 @@ class StatorApp(tk.Tk):
         rotor_coil_wire = Wire(d_rotor_wire, Rho_Cu(temperature_celsius))
         rotor = WoundRotor(n_pole, n_phase, n_rotor_slot, voltage_input, frequency, rotor_radius, lz_machine, n_rotor_turns, rotor_power, rotor_coil_wire, stator_winding)
 
+        # Find Be with iterations
         voltage_input_reverse = 0
         i = 0
         gap_magnetic_flux_density = 0.1
+        gap_magnetic_flux_density_array = []
         while i < max_iterations and abs(voltage_input - voltage_input_reverse) > tolerance * voltage_input:
+            gap_magnetic_flux_density_array.append(gap_magnetic_flux_density)
             i += 1
             magnetic_circuit = MagneticCircuit(gap_magnetic_flux_density, bore_radius, n_pole, lz_machine, BOfH_M235_35A(), n_stator_slot, n_rotor_slot, stator_yoke_thickness, rotor_yoke_thickness, stator_slot_width, rotor_slot_width, stator_slot_length, rotor_slot_length)
             magnetizing_reactance = MagnetizingReactance(magnetic_circuit, frequency, stator_winding, air_gap_length)
@@ -189,11 +200,13 @@ class StatorApp(tk.Tk):
             if abs(voltage_input - voltage_input_reverse) <= tolerance * voltage_input:
                 break
 
+            # If the calculated voltag is less than the user input then increase the flux density, else, decrease it
             if voltage_input_reverse < voltage_input:
                 gap_magnetic_flux_density += delta_B
             else:
                 gap_magnetic_flux_density -= delta_B / 2
 
+        # Get all the machine performance values
         machine_performance = MachinePerformance(machine, stator_resistance, rotor, stator_reactance.get_reactance, magnetizing_reactance)
 
         if option == 1:
@@ -217,29 +230,38 @@ class StatorApp(tk.Tk):
 
             out2 = (
                   f"===== RESULT FOR slip={slip:.3f} =====\n"
-                + f"Starting torque : {machine_performance.starting_torque:.3f}\n"
+                + f"Starting current       : {machine_performance.starting_current:.3f} A\n"
+                + f"Starting torque        : {machine_performance.starting_torque:.3f} N.m\n"
                 + f"Slip at maximum torque : {machine_performance.slip_at_maximum_torque:.3f}\n"
-                + f"Maximum torque : {machine_performance.maximum_torque:.3f}\n\n"
+                + f"Maximum torque         : {machine_performance.maximum_torque:.3f} N.m\n\n"
                 + f"+--------------+------------------+----------------------+------------------+\n"
                 + f"|              | Flux Density (T) | Field Strength (A/m) | Amp. Turns (AT)  |\n"
                 + f"+--------------+------------------+----------------------+------------------+\n"
-                + f"| Air gap      | {magnetic_circuit.get_gap_magnetic_flux_density.get_magnetic_flux_density:>16.3e} | {magnetic_circuit.get_gap_magnetic_flux_density.get_magnetic_field_strength:>20.3e} | {magnetic_circuit.get_gap_magnetic_flux_density.get_magnetic_field_strength:>16.3e} |\n"
-                + f"| Stator yoke  | {magnetic_circuit.get_stator_yoke_magnetic_flux_density.get_magnetic_flux_density:>16.3e} | {magnetic_circuit.get_stator_yoke_magnetic_flux_density.get_magnetic_field_strength:>20.3e} | {magnetic_circuit.get_gap_magnetic_flux_density.get_magnetic_field_strength:>16.3e} |\n"
-                + f"| Stator teeth | {magnetic_circuit.get_stator_teeth_magnetic_flux_density.get_magnetic_flux_density:>16.3e} | {magnetic_circuit.get_stator_teeth_magnetic_flux_density.get_magnetic_field_strength:>20.3e} | {magnetic_circuit.get_gap_magnetic_flux_density.get_magnetic_field_strength:>16.3e} |\n"
-                + f"| Rotor  yoke  | {magnetic_circuit.get_rotor_yoke_magnetic_flux_density.get_magnetic_flux_density:>16.3e} | {magnetic_circuit.get_rotor_yoke_magnetic_flux_density.get_magnetic_field_strength:>20.3e} | {magnetic_circuit.get_gap_magnetic_flux_density.get_magnetic_field_strength:>16.3e} |\n"
-                + f"| Rotor  teeth | {magnetic_circuit.get_rotor_teeth_magnetic_flux_density.get_magnetic_flux_density:>16.3e} | {magnetic_circuit.get_rotor_teeth_magnetic_flux_density.get_magnetic_field_strength:>20.3e} | {magnetic_circuit.get_gap_magnetic_flux_density.get_magnetic_field_strength:>16.3e} |\n"
+                + f"| Air gap      | {magnetic_circuit.get_gap_magnetic_flux_density.get_magnetic_flux_density:>16.3e} | {magnetic_circuit.get_gap_magnetic_flux_density.get_magnetic_field_strength:>20.3e} | {magnetizing_reactance.get_amp_theorem.get_enclosed_current_array[4]:>16.3e} |\n"
+                + f"| Stator yoke  | {magnetic_circuit.get_stator_yoke_magnetic_flux_density.get_magnetic_flux_density:>16.3e} | {magnetic_circuit.get_stator_yoke_magnetic_flux_density.get_magnetic_field_strength:>20.3e} | {magnetizing_reactance.get_amp_theorem.get_enclosed_current_array[0]:>16.3e} |\n"
+                + f"| Stator teeth | {magnetic_circuit.get_stator_teeth_magnetic_flux_density.get_magnetic_flux_density:>16.3e} | {magnetic_circuit.get_stator_teeth_magnetic_flux_density.get_magnetic_field_strength:>20.3e} | {magnetizing_reactance.get_amp_theorem.get_enclosed_current_array[1]:>16.3e} |\n"
+                + f"| Rotor  yoke  | {magnetic_circuit.get_rotor_yoke_magnetic_flux_density.get_magnetic_flux_density:>16.3e} | {magnetic_circuit.get_rotor_yoke_magnetic_flux_density.get_magnetic_field_strength:>20.3e} | {magnetizing_reactance.get_amp_theorem.get_enclosed_current_array[2]:>16.3e} |\n"
+                + f"| Rotor  teeth | {magnetic_circuit.get_rotor_teeth_magnetic_flux_density.get_magnetic_flux_density:>16.3e} | {magnetic_circuit.get_rotor_teeth_magnetic_flux_density.get_magnetic_field_strength:>20.3e} | {magnetizing_reactance.get_amp_theorem.get_enclosed_current_array[3]:>16.3e} |\n"
                 + f"+--------------+------------------+----------------------+------------------+"
             )
             self.BTable.delete("1.0", tk.END)
             self.BTable.insert(tk.END, out2)
         elif option == 2:
+            plt.close()
             torque_curve = machine_performance.compute_torque_curve()
             plt.plot(torque_curve[0], torque_curve[2], 'r')
-            plt.xlabel("slip")
-            plt.ylabel("torque (Nm)")
+            plt.xlabel("Slip")
+            plt.ylabel("Rorque (Nm)")
             plt.title("Machine Performance - Torque Curve")
             plt.show()
+        elif option == 3:
+            plt.close()
+            plt.plot(np.array(range(len(gap_magnetic_flux_density_array)))+1, gap_magnetic_flux_density_array, 'r')
+            plt.xlabel("Iteration")
+            plt.ylabel("Gap Magnetic Flux Density (T)")
+            plt.title("Gap Magnetic Flux Density evolution with iterations")
+            plt.show()
 
-
-app = StatorApp()
-app.mainloop()
+if __name__ == "__main__":
+    app = StatorApp()
+    app.mainloop()

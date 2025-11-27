@@ -33,7 +33,8 @@ class MagnetizingReactance(Reactance):
         stator_yoke_path = self._magnetic_circuit.get_stator_yoke_thickness + (self._magnetic_circuit.get_bore_radius + self._magnetic_circuit.get_stator_slot_length + self._magnetic_circuit.get_stator_yoke_thickness/2)*(self._stator_winding.get_pole_pitch/2)
         rotor_yoke_path = self._magnetic_circuit.get_rotor_yoke_thickness + (self._magnetic_circuit.get_bore_radius - self._magnetic_circuit.get_rotor_slot_length - self._magnetic_circuit.get_rotor_yoke_thickness/2)*(self._stator_winding.get_pole_pitch/2)
         lengths = np.array([stator_yoke_path, 2*self._magnetic_circuit.get_stator_slot_length, rotor_yoke_path, 2*self._magnetic_circuit.get_rotor_slot_length, 2*self._air_gap_length])
-        self._magnetizing_current = self._stator_winding.get_n_pole * np.pi * AmpTheorem(field_strenghs, lengths).get_enclosed_current / (3*np.sqrt(2)*WindingFactor(self._stator_winding.get_n_slot_per_pole_per_phase, 1, self._stator_winding.get_n_turns).get_value*self._stator_winding.get_n_turns)
+        self._amp_theorem = AmpTheorem(field_strenghs, lengths)
+        self._magnetizing_current = self._stator_winding.get_n_pole * np.pi * self._amp_theorem.get_enclosed_current / (3*np.sqrt(2)*WindingFactor(self._stator_winding.get_n_slot_per_pole_per_phase, 1, self._stator_winding.get_n_turns).get_value*self._stator_winding.get_n_turns)
         self._value = self._electromotrice_force/self._magnetizing_current
 
 
@@ -48,6 +49,10 @@ class MagnetizingReactance(Reactance):
     @property
     def get_electromotrice_force(self):
         return self._electromotrice_force
+
+    @property
+    def get_amp_theorem(self):
+        return self._amp_theorem
 
 class ImpedanceFromValue(Reactance):
 

@@ -137,3 +137,8 @@ class MachinePerformance:
     @property
     def starting_torque(self):
         return self.compute_performance_at_slip(1)["electromagnetic_torque"]
+
+    @property
+    def starting_current(self):
+        """Stator current at starting conditions (slip = 1)."""
+        return self.compute_performance_at_slip(1)["stator_current"]
